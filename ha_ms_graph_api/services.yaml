@@ -1,0 +1,66 @@
+update_device_extension_attribute:
+  name: Update Device Extension Attribute
+  description: >
+    Update a single extension attribute on a device in Azure AD/Intune.
+    This service is only available when Safe Mode is disabled.
+  fields:
+    device_name:
+      name: Device Name
+      description: The display name of the device to update
+      required: true
+      example: "LAPTOP-ABC123"
+      selector:
+        text:
+    attribute_number:
+      name: Attribute Number
+      description: The extension attribute number (1-15)
+      required: true
+      example: 1
+      selector:
+        number:
+          min: 1
+          max: 15
+          mode: box
+    value:
+      name: Value
+      description: The value to set (leave empty to clear the attribute)
+      required: false
+      example: "IT-Department"
+      selector:
+        text:
+
+update_user_properties:
+  name: Update User Properties
+  description: >
+    Update user properties (employee ID, job title, and/or department) in Azure AD.
+    This service is only available when Safe Mode is disabled.
+    At least one property must be provided.
+  fields:
+    user_name:
+      name: User Name
+      description: The display name of the user to update
+      required: true
+      example: "John Doe"
+      selector:
+        text:
+    employee_id:
+      name: Employee ID
+      description: The employee ID to set (leave empty to leave unchanged)
+      required: false
+      example: "EMP-12345"
+      selector:
+        text:
+    job_title:
+      name: Job Title
+      description: The job title to set (leave empty to leave unchanged)
+      required: false
+      example: "Senior Engineer"
+      selector:
+        text:
+    department:
+      name: Department
+      description: The department to set (leave empty to leave unchanged)
+      required: false
+      example: "Engineering"
+      selector:
+        text:

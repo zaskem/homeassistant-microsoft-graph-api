@@ -1,0 +1,41 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "data": {
+          "tenant_id": "Microsoft Directory (Tenant) ID",
+          "client_id": "Azure App Registration Client ID",
+          "client_secret": "Azure App Registration Client Secret",
+          "use_cert_auth": "Use Certificate-Based Authentication (optional)",
+          "client_cert_path": "Azure App Registration Client Certificate Path (optional, for certificate-based auth)",
+          "update_interval": "Update Interval (seconds)",
+          "safe_mode": "Safe Mode (read-only actions)",
+          "privacy_mode": "Privacy Mode (hide sensitive data)"
+        },
+        "description": "Enter your Azure App Registration details to use Graph API"
+      }
+    },
+    "error": {
+      "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+      "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
+      "unknown": "[%key:common::config_flow::error::unknown%]"
+    },
+    "abort": {
+      "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "update_interval": "[%key:component::ha_ms_graph_api::config::step::user::data::update_interval%]",
+          "client_secret": "[%key:component::ha_ms_graph_api::config::step::user::data::client_secret%]",
+          "use_cert_auth": "[%key:component::ha_ms_graph_api::config::step::user::data::use_cert_auth%]",
+          "client_cert_path": "[%key:component::ha_ms_graph_api::config::step::user::data::client_cert_path%]",
+          "safe_mode": "[%key:component::ha_ms_graph_api::config::step::user::data::safe_mode%]",
+          "privacy_mode": "[%key:component::ha_ms_graph_api::config::step::user::data::privacy_mode%]"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "Device is already configured"
+        },
+        "error": {
+            "cannot_connect": "Failed to connect",
+            "invalid_auth": "Invalid authentication",
+            "unknown": "Unexpected error"
+        },
+        "step": {
+            "user": {
+                "data": {
+                    "tenant_id": "Microsoft Directory (Tenant) ID",
+                    "client_id": "Azure App Registration Client ID",
+                    "client_secret": "Azure App Registration Client Secret",
+                    "use_cert_auth": "Use Certificate-Based Authentication (optional)",
+                    "client_cert_path": "Azure App Registration Client Certificate Path (optional, for certificate-based auth)",
+                    "update_interval": "Update Interval (seconds)",
+                    "safe_mode": "Safe Mode (read-only actions)",
+                    "privacy_mode": "Privacy Mode (hide sensitive data)"
+                },
+                "description": "Enter your Azure App Registration details to use Graph API"
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "data": {
+                    "update_interval": "Update Interval (seconds)",
+                    "client_secret": "Azure App Registration Client Secret",
+                    "use_cert_auth": "Use Certificate-Based Authentication (optional)",
+                    "client_cert_path": "Azure App Registration Client Certificate Path (optional, for certificate-based auth)",
+                    "safe_mode": "Safe Mode (read-only actions)",
+                    "privacy_mode": "Privacy Mode (hide sensitive data)"
+                }
+            }
+        }
+    }
+}
