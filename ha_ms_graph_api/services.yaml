@@ -1,7 +1,7 @@
 update_device_extension_attribute:
   name: Update Device Extension Attribute
   description: >
-    Update a single extension attribute on a device in Azure AD/Intune.
+    Update a single extension attribute on a device in Entra ID/Intune.
     This service is only available when Safe Mode is disabled.
   fields:
     device_name:
@@ -32,7 +32,7 @@ update_device_extension_attribute:
 update_user_properties:
   name: Update User Properties
   description: >
-    Update user properties (employee ID, job title, and/or department) in Azure AD.
+    Update user properties (employee ID, job title, and/or department) in Entra ID.
     This service is only available when Safe Mode is disabled.
     At least one property must be provided.
   fields:

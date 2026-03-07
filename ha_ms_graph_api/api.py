@@ -39,11 +39,11 @@ class msGraphApiClient:
         """Initialize the API client.
         
         Args:
-            client_id: Azure AD application (client) ID
-            tenant_id: Azure AD tenant ID
+            client_id: Azure application (client) ID
+            tenant_id: Microsoft tenant ID
             session: aiohttp ClientSession
             update_interval: Update interval in seconds
-            client_secret: Azure AD client secret (for secret-based auth)
+            client_secret: Azure application client secret (for secret-based auth)
             client_cert_path: Path to certificate file in PEM format (for cert-based auth)
             use_cert_auth: Whether to use certificate authentication instead of client secret
         """
@@ -164,7 +164,7 @@ class msGraphApiClient:
             "iat": now,
         }
         
-        # Create headers with certificate thumbprint (required by Azure AD)
+        # Create headers with certificate thumbprint (required by Graph API)
         headers = {
             "alg": "RS256",
             "typ": "JWT",
@@ -613,7 +613,7 @@ class msGraphApiClient:
         """Update a single extension attribute on a device.
         
         Args:
-            device_object_id: The Azure AD object ID of the device
+            device_object_id: The Entra ID object ID of the device
             attribute_number: The extension attribute number (1-15)
             value: The value to set (None to clear)
             

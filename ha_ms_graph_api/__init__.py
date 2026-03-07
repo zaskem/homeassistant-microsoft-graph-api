@@ -31,7 +31,7 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-_PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.SELECT]
+_PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.SENSOR, Platform.SELECT, Platform.TEXT]
 
 type GraphAPIConfigEntry = ConfigEntry[msGraphApiClient]
 
