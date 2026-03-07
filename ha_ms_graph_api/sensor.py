@@ -72,7 +72,7 @@ async def async_setup_entry(
     # Create coordinators to manage data updates
     device_coordinator = DeviceCoordinator(hass, client, entry)
     group_coordinator = GroupCoordinator(hass, client)
-    user_coordinator = UserCoordinator(hass, client)
+    user_coordinator = UserCoordinator(hass, client, entry)
     
     # Store coordinators in hass.data for access by other platforms
     hass.data[f"{DOMAIN}_{entry.entry_id}_coordinator"] = device_coordinator
@@ -109,18 +109,17 @@ async def async_setup_entry(
         GraphAPIGroupDetailsSensor(group_coordinator, ATTR_GROUP_ID, "Group ID", "mdi:identifier"),
         GraphAPIGroupMembersSensor(group_coordinator),
         GraphAPIUsersSensor(user_coordinator),
-        GraphAPIUserDetailsSensor(user_coordinator, ATTR_USER_ID, "User ID", "mdi:identifier"),
+        GraphAPIUserDetailsSensor(user_coordinator, ATTR_USER_ID, "User ID", "mdi:identifier", False),
     ])
     
-    # Only add sensitive user sensors if privacy mode is disabled
-    if not privacy_mode:
-        sensors.extend([
-            GraphAPIUserDetailsSensor(user_coordinator, ATTR_USER_MAIL, "User Mail", "mdi:email"),
-            GraphAPIUserDetailsSensor(user_coordinator, ATTR_USER_PRINCIPAL_NAME, "User Principal Name", "mdi:account"),
-            GraphAPIUserDetailsSensor(user_coordinator, ATTR_USER_EMPLOYEE_ID, "User Employee ID", "mdi:badge-account"),
-            GraphAPIUserDetailsSensor(user_coordinator, ATTR_USER_JOB_TITLE, "User Job Title", "mdi:briefcase"),
-            GraphAPIUserDetailsSensor(user_coordinator, ATTR_USER_DEPARTMENT, "User Department", "mdi:office-building"),
-        ])
+    # Add sensitive user sensors (they will show "Hidden" when privacy mode is enabled)
+    sensors.extend([
+        GraphAPIUserDetailsSensor(user_coordinator, ATTR_USER_MAIL, "User Mail", "mdi:email", True),
+        GraphAPIUserDetailsSensor(user_coordinator, ATTR_USER_PRINCIPAL_NAME, "User Principal Name", "mdi:account", True),
+        GraphAPIUserDetailsSensor(user_coordinator, ATTR_USER_EMPLOYEE_ID, "User Employee ID", "mdi:badge-account", True),
+        GraphAPIUserDetailsSensor(user_coordinator, ATTR_USER_JOB_TITLE, "User Job Title", "mdi:briefcase", True),
+        GraphAPIUserDetailsSensor(user_coordinator, ATTR_USER_DEPARTMENT, "User Department", "mdi:office-building", True),
+    ])
     
     sensors.append(GraphAPIUserDevicesSensor(user_coordinator))
     
@@ -260,7 +259,7 @@ class GroupCoordinator(DataUpdateCoordinator):
 class UserCoordinator(DataUpdateCoordinator):
     """Class to manage fetching Graph API user data."""
 
-    def __init__(self, hass: HomeAssistant, client: msGraphApiClient) -> None:
+    def __init__(self, hass: HomeAssistant, client: msGraphApiClient, entry: ConfigEntry) -> None:
         """Initialize the coordinator."""
         super().__init__(
             hass,
@@ -269,7 +268,12 @@ class UserCoordinator(DataUpdateCoordinator):
             update_interval=timedelta(seconds=client.update_interval),
         )
         self.client = client
+        self.entry = entry
         self._selected_user: str | None = None
+
+    def _get_privacy_mode(self) -> bool:
+        """Get the privacy mode setting."""
+        return self.hass.data.get(DOMAIN, {}).get(f"{self.entry.entry_id}_privacy_mode", True)
 
     def set_selected_user(self, user_name: str) -> None:
         """Set the currently selected user."""
@@ -771,10 +775,12 @@ class GraphAPIUserDetailsSensor(CoordinatorEntity, SensorEntity):
         attribute_key: str,
         name: str,
         icon: str,
+        privacy_sensitive: bool = False,
     ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)
         self._attribute_key = attribute_key
+        self._privacy_sensitive = privacy_sensitive
         self._attr_name = f"Graph API {name}"
         self._attr_unique_id = f"{DOMAIN}_{attribute_key}"
         self._attr_icon = icon
@@ -782,6 +788,10 @@ class GraphAPIUserDetailsSensor(CoordinatorEntity, SensorEntity):
     @property
     def native_value(self) -> str | None:
         """Return the value of the attribute for the selected user."""
+        # Check if this is a privacy-sensitive field and privacy mode is enabled
+        if self._privacy_sensitive and self.coordinator._get_privacy_mode():
+            return "Hidden (Privacy Mode enabled)"
+        
         if self.coordinator.data is None:
             return "Unknown"
         
@@ -859,3 +869,6 @@ class GraphAPIUserDevicesSensor(CoordinatorEntity, SensorEntity):
             "devices": self.coordinator.data.get("user_devices", []),
             "selected_user": self.coordinator.data.get("selected_user"),
         }
+
+
+
