@@ -2,7 +2,7 @@
 
 This integration allows you to work with devices, users, and groups from a Microsoft Tenant (Entra ID, Intune) in Home Assistant by connecting to the Microsoft Graph API.
 
-**IMPORTANT NOTE**: This integration is intended for educational/investigative purposes only and should _NOT_ be used in a production environment unless you fully understand the implications or wish to run the risk of a Resume-Generating Event (RGE). The integration as provided will not generally cause irreparable harm; however, you _are_ connecting to a directory/tenant with potential write-level access.
+**IMPORTANT NOTE**: This integration is intended for educational/investigative purposes only and should _NOT_ be used in a production environment unless you fully understand the implications or wish to run the risk of a Resume-Generating Event (RGE). The integration as provided will not generally cause irreparable harm; however, you _are_ connecting to a directory/tenant with potential write-level access and actions.
 
 ## Features
 
@@ -58,18 +58,18 @@ Before setting up this integration, you need to create an Azure application regi
 
 After setup, you can reconfigure the following options by going to **Settings** > **Devices & Services** > **Microsoft Graph API Sandbox** > **Configure**:
 
-- **Azure Application Client Secret**: Rotating secrets is a good thing
+- **Azure Application Client Secret**: Rotating secrets is a good thing; this setting allows you to change a secret without completely re-installing the integration
 - **Use Certificate-Based Authentication**: Switch between authentication methods
-- **Azure Application Certificate Path**: Local path to combined certificate and private key
+- **Azure Application Certificate Path**: Local path to combined certificate and private key if Certificate-Based Authentication is used
 - **Update Interval**: How often to poll the Microsoft Graph API (default: 300 seconds)
-- **Safe Mode**: When enabled (default), prevents write operations to Azure AD/Intune
-- **Privacy Mode**: When enabled (default), hides BitLocker keys and user email/principal name data
+- **Safe Mode**: When enabled (default), prevents write operations to Entra ID/Intune
+- **Privacy Mode**: When enabled (default), displays "Hidden (Privacy Mode enabled)" for BitLocker keys and sensitive user data (email, principal name, employee ID, job title, department) instead of the actual values
 
 ## Sensor List
 
 Following setup, the integration will create or expose a number of sensors (listed in alphabetical order):
 * Graph API BitLocker Recovery Keys
-* Graph API Device Extension Attributes
+* Graph API Device Extension Attributes (plus individual selector and editor)
 * Graph API Device Groups
 * Graph API Device ID
 * Graph API Device Ownership
@@ -86,123 +86,57 @@ Following setup, the integration will create or expose a number of sensors (list
 * Graph API Model
 * Graph API Operating System
 * Graph API OS Version
-* Graph API User Department
+* Graph API Privacy Mode (read-only; matches configuration setting)
+* Graph API Safe Mode (read-only; matches configuration setting)
+* Graph API User Department (plus editor)
 * Graph API User Devices
-* Graph API User Employee ID
+* Graph API User Employee ID (plus editor)
 * Graph API User ID
-* Graph API User Job Title
+* Graph API User Job Title (plus editor)
 * Graph API User Mail
 * Graph API User Principal Name
 * Graph API User Selector
 * Graph API Users
 
-## Automations and Services
+Sensors will update automatically as actions are called or polled. Note a short refresh delay of 1-10 seconds is normal, especially when frequent calls are made such as selecting different devices or users in short order.
 
-You can use sensors in automations and service calls.
+### Privacy and Safe Mode Sensor Behavior
 
-### Automation: Mobile app notifcation when device count changes
+When Privacy Mode is enabled (default), the following sensors will display "Hidden (Privacy Mode enabled)" instead of actual values:
+- Graph API BitLocker Recovery Keys
+- Graph API User Mail
+- Graph API User Principal Name
+- Graph API User Employee ID
+- Graph API User Job Title
+- Graph API User Department
 
-```yaml
-automation:
-  - alias: "Notify on Graph API device count change"
-    trigger:
-      - platform: state
-        entity_id: sensor.graph_api_devices
-    action:
-      - service: notify.mobile_app
-        data:
-          message: "Graph API now reports {{ states('sensor.graph_api_devices') }} devices"
-```
+When Safe Mode is enabled (default), the following sensors and editable field sensors will not be provided by the integration:
+- Graph API Device Extension Attributes
+- Graph API Device Extension Attribute Editor
+- Graph API User Department Editor
+- Graph API User Employee ID Editor
+- Graph API User Job Title Editor
 
-### Update Device Extension Attribute
+### Special/Convenience Sensors
 
-This service allows you to update extension attributes on devices in Entra ID. **This service is only available when Safe Mode is disabled.**
+#### Graph API Privacy Mode and Safe Mode Sensors
 
-Extension attributes (extensionAttribute1 through extensionAttribute15) are custom fields that can store additional metadata about devices in Entra ID.
+The Privacy Mode and Safe Mode sensors mirror the current configuration. To change either sensor, reconfigure the integration through **Settings** > **Devices & Services** > **Microsoft Graph API Sandbox** > **Configure**.
 
-**Service:** `ha_ms_graph_api.update_device_extension_attribute`
+#### Graph API Extension Attribute Selector
 
-**Parameters:**
-- `device_name` (required): The display name of the device to update
-- `attribute_number` (required): The extension attribute number (1-15)
-- `value` (optional): The value to set. Leave empty or use `null` to clear the attribute
+A special dropdown selector is provided to choose a device extension attribute (1-15) to assist calling the `update_device_extension_attribute` service. This makes it easier to change attributes without creating a helper dropdown.
 
-**Example:**
-```yaml
-service: ha_ms_graph_api.update_device_extension_attribute
-data:
-  device_name: "LAPTOP-ABC123"
-  attribute_number: 1
-  value: "IT-Department"
-```
+#### Graph API Extension Attribute and User Property Editors
 
-**To clear an attribute:**
-```yaml
-service: ha_ms_graph_api.update_device_extension_attribute
-data:
-  device_name: "LAPTOP-ABC123"
-  attribute_number: 1
-  value: null
-```
+A set of editable text fields that display and afford editing of the selected extension attribute value or user property values. These sensors automatically sync with:
+- The currently selected device and selected extension attribute (from Graph API Extension Attribute Selector)
+- The currently selected user (from Graph API User Selector)
 
-**Required Application Permissions:**
-To use this service, ensure your application has the `Device.ReadWrite.All` permission.
 
-### Update User Properties
+## Pre-Configured Dashboard, Automations, and Examples
 
-This service allows you to update user properties (employee ID, job title, and department) in Entra ID. **This service is only available when Safe Mode is disabled.**
-
-At least one property must be provided in the service call. Properties not specified will remain unchanged.
-
-**Service:** `ha_ms_graph_api.update_user_properties`
-
-**Parameters:**
-- `user_name` (required): The display name of the user to update
-- `employee_id` (optional): The employee ID to set
-- `job_title` (optional): The job title to set
-- `department` (optional): The department to set
-
-**Example - Update all properties:**
-```yaml
-service: ha_ms_graph_api.update_user_properties
-data:
-  user_name: "John Doe"
-  employee_id: "EMP-12345"
-  job_title: "Senior Engineer"
-  department: "Engineering"
-```
-
-**Example - Update only job title:**
-```yaml
-service: ha_ms_graph_api.update_user_properties
-data:
-  user_name: "John Doe"
-  job_title: "Lead Engineer"
-```
-
-**Example - Clear a property (set to empty string):**
-```yaml
-service: ha_ms_graph_api.update_user_properties
-data:
-  user_name: "John Doe"
-  employee_id: ""
-```
-
-**Required Application Permissions:**
-To use this service, ensure your application has the `User.ReadWrite.All` or `Directory.ReadWrite.All` permission.
-
-## Troubleshooting
-
-If you encounter authentication issues:
-
-1. Verify your Client ID, Client Secret, and Tenant ID are correct
-2. If using Certificate authentication, verify the certificate is properly registered in the Azure application configuration, the Home Asisstant key file includes the public certificate, and the local path to the key file is correct
-3. Ensure admin consent has been granted for all required API permissions
-4. Check Home Assistant logs for detailed error messages
-
-## Credits
-
-This integration is based on an idea @zaskem had built out using Home Assistant's native RESTFul platform by proxying Graph API calls through a third-party host to bring device monitoring and expose device details in Home Assistant. The integration eliminates the need to set up a proxy host (and scripts) to translate/transform requests from Home Assistant to Graph API and is generally a novel idea not intended to be used in a production setting.
+Descriptions and information to install a pre-configured Home Assistant dashboard with basic actions and other automation examples can be [found in `examples.md`](examples.md). 
 
 ## Using Certificate-Based Authentication
 
@@ -233,14 +167,41 @@ You are now using Certificate-based authentication for the integration. Keeping 
 Permissions are listed below in alphabetical order by function of the integration. All permissions are Application based and require admin consent for the organization.
 
 ### Basic Read-Only Functionality
+
 * Device.Read.All
 * Directory.Read.All
 * User.Read.All
 
 ### Privacy-Mode Disabled (show sensitive data)
+
 * BitlockerKey.Read.All
 * BitlockerKey.ReadBasic.All
 
 ### Safe Mode Disabled (allow write-back)
+
 * Device.ReadWrite.All
-* User.ReadWrite.All
+* User.ReadWrite.All (or Directory.ReadWrite.All)
+
+## Removing or Re-Installing This Integration
+
+The integration is quite well-contained. Removing/Deleting it from the **Settings** > **Devices & Services** > **Microsoft Graph API Sandbox** interface is the recommended method and will automatically remove and clean up created sensors, configuration, etc.
+
+The integration can be re-installed by deleting it, then [following the installation instructions](#installation).
+
+**Note:** The example dashboard and automations, if added, will not be removed by deleting the integration and must be manually removed if desired (not re-installing the integration). If re-installing the integration, the dashboard and automations will continue to behave after installation is complete.
+
+To completely eliminate the integration from your Home Assistant instance, remove the `ha_ms_graph_api` folder from the `custom_components` directory after deleting the integration from the UI.
+
+## Troubleshooting
+
+If you encounter authentication issues:
+
+1. Verify your Client ID, Client Secret, and Tenant ID are correct
+2. If using Certificate authentication, verify the certificate is properly registered in the Azure application configuration, the Home Asisstant key file includes the public certificate, and the local path to the key file is correct
+3. Ensure required API permissions have been added (read and/or write actions)
+4. Ensure admin consent has been granted for required API permissions
+5. Check Home Assistant logs for detailed error messages
+
+## Credits
+
+This integration is based on an idea @zaskem had built out using Home Assistant's native RESTFul platform by proxying Graph API calls through a third-party host to bring device monitoring and expose device details in Home Assistant. The integration eliminates the need to set up a proxy host (and scripts) to translate/transform requests from Home Assistant to Graph API and is generally a novel idea not intended to be used in a production setting.
