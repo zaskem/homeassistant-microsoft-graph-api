@@ -1,0 +1,26 @@
+alias: Refresh User Department Text Box
+description: "EXAMPLE automation for refreshing the user department text box. This automation is triggered when the user department changes in `Graph API Users` on the `Write Actions` tab of the example dashboard."
+triggers:
+  - trigger: state
+    entity_id:
+      - sensor.graph_api_department
+conditions: []
+actions:
+  - if:
+      - condition: template
+        value_template: "{{ states('sensor.graph_api_department') != \"Not available\" }}"
+    then:
+      - action: text.set_value
+        target:
+          entity_id:
+            - text.graph_api_user_department_editor
+        data:
+          value: "{{ states('sensor.graph_api_department') }}"
+    else:
+      - action: text.set_value
+        target:
+          entity_id:
+            - text.graph_api_user_department_editor
+        data:
+          value: ""
+mode: single

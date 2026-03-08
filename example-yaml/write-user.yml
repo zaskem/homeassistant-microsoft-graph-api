@@ -1,0 +1,20 @@
+alias: Write User
+description: "EXAMPLE automation for writing three user properties simultaneously. Connect this automation to the action 'Update' button for `Graph API Users` on the `Write Actions` tab of the example dashboard, or use it as a template for your own automations."
+triggers: []
+conditions: []
+actions:
+  - action: ha_ms_graph_api.update_user_properties
+    metadata: {}
+    data:
+      user_name: "{{ states('select.graph_api_user_selector') }}"
+      employee_id: "{{ states('text.graph_api_user_employee_id_editor') }}"
+      job_title: "{{ states('text.graph_api_user_job_title_editor') }}"
+      department: "{{ states('text.graph_api_user_department_editor') }}"
+  - action: homeassistant.update_entity
+    metadata: {}
+    data:
+      entity_id:
+        - sensor.graph_api_employee_id
+        - sensor.graph_api_job_title
+        - sensor.graph_api_department
+mode: single

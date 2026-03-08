@@ -1,0 +1,310 @@
+views:
+  - type: sections
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: Graph API Groups
+            heading_style: title
+            icon: mdi:account-group
+          - type: tile
+            entity: select.graph_api_group_selector
+            name: Selected Group
+            show_entity_picture: false
+            hide_state: false
+            vertical: false
+            features:
+              - type: select-options
+            features_position: bottom
+          - type: entity
+            entity: sensor.graph_api_groups
+            grid_options:
+              columns: 6
+              rows: 2
+            name: Group Count
+          - type: entities
+            entities:
+              - entity: sensor.graph_api_group_id
+              - entity: sensor.graph_api_group_members
+              - entity: sensor.graph_api_group_members
+                name: Membership
+                type: attribute
+                attribute: members
+            title: Normal Fields
+      - type: grid
+        cards:
+          - type: heading
+            heading: Graph API Devices
+            heading_style: title
+            icon: mdi:devices
+          - type: tile
+            entity: select.graph_api_device_selector
+            name: Selected Device
+            show_entity_picture: false
+            hide_state: false
+            vertical: false
+            features:
+              - type: select-options
+            features_position: bottom
+          - type: entity
+            entity: sensor.graph_api_devices
+            grid_options:
+              columns: 6
+              rows: 2
+            name: Device Count
+          - type: entities
+            entities:
+              - entity: sensor.graph_api_device_id
+              - entity: sensor.graph_api_device_groups
+                name: Member of Groups
+                type: attribute
+                attribute: groups
+              - entity: sensor.graph_api_device_ownership
+              - entity: sensor.graph_api_enrollment_type
+              - entity: sensor.graph_api_operating_system
+              - entity: sensor.graph_api_os_version
+              - entity: sensor.graph_api_last_sign_in
+              - entity: sensor.graph_api_is_compliant
+              - entity: sensor.graph_api_manufacturer
+              - entity: sensor.graph_api_model
+            title: Normal Fields
+          - type: entities
+            entities:
+              - entity: sensor.graph_api_bitlocker_recovery_keys
+                name: Bitlocker Key
+                type: attribute
+                attribute: keys
+            title: Sensitive Fields
+          - type: entities
+            entities:
+              - entity: sensor.graph_api_device_extension_attributes
+                name: ' '
+                type: attribute
+                attribute: extension_attributes
+            title: Writable Extension Attributes
+            visibility:
+              - condition: state
+                entity: binary_sensor.graph_api_safe_mode
+                state: 'off'
+      - type: grid
+        cards:
+          - type: heading
+            heading: Graph API Users
+            heading_style: title
+            icon: mdi:account
+          - type: tile
+            entity: select.graph_api_user_selector
+            name: Selected User
+            show_entity_picture: false
+            hide_state: false
+            vertical: false
+            features:
+              - type: select-options
+            features_position: bottom
+          - type: entity
+            entity: sensor.graph_api_users
+            grid_options:
+              columns: 6
+              rows: 2
+            name: User Count
+          - type: entities
+            entities:
+              - entity: sensor.graph_api_user_id
+              - entity: sensor.graph_api_user_devices
+              - entity: sensor.graph_api_user_devices
+                name: Associated Devices
+                type: attribute
+                attribute: devices
+            title: Normal Fields
+          - type: entities
+            entities:
+              - entity: sensor.graph_api_user_principal_name
+              - entity: sensor.graph_api_user_mail
+              - entity: sensor.graph_api_employee_id
+              - entity: sensor.graph_api_job_title
+              - entity: sensor.graph_api_department
+            title: Sensitive Fields
+    max_columns: 4
+    title: Read-Only Actions
+    cards: []
+    icon: mdi:pencil-off-outline
+    show_icon_and_title: true
+  - type: sections
+    max_columns: 4
+    title: Write Actions
+    path: write-actions
+    icon: mdi:content-save-edit-outline
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: Graph API Devices
+            heading_style: title
+            icon: mdi:devices
+          - type: tile
+            entity: select.graph_api_device_selector
+            name: Selected Device
+            show_entity_picture: false
+            hide_state: false
+            vertical: false
+            features:
+              - type: select-options
+            features_position: bottom
+          - type: tile
+            entity: select.graph_api_extension_attribute_selector
+            name: Selected Attribute
+            icon: mdi:tag
+            show_entity_picture: false
+            hide_state: false
+            vertical: false
+            tap_action:
+              action: perform-action
+              perform_action: automation.trigger
+              target:
+                entity_id: automation.refresh_ea_input_text_box
+              data:
+                skip_condition: true
+            features:
+              - type: select-options
+            features_position: bottom
+          - type: heading
+            icon: mdi:shield-check
+            heading: Safe Mode Enabled (No Editable Options)
+            visibility:
+              - condition: state
+                entity: binary_sensor.graph_api_safe_mode
+                state: 'on'
+            heading_style: title
+          - type: entities
+            title: Extension Attribute Editor
+            entities:
+              - entity: text.graph_api_extension_attribute_editor
+            grid_options:
+              columns: 9
+              rows: auto
+            show_header_toggle: false
+            state_color: false
+            visibility:
+              - condition: state
+                entity: binary_sensor.graph_api_safe_mode
+                state: 'off'
+          - show_name: true
+            show_icon: true
+            type: button
+            entity: ''
+            tap_action:
+              action: perform-action
+              perform_action: automation.trigger
+              target:
+                entity_id: automation.write_ea
+              data:
+                skip_condition: true
+            name: Update
+            icon: mdi:update
+            color: accent
+            show_state: false
+            grid_options:
+              columns: 3
+              rows: 2
+            visibility:
+              - condition: state
+                entity: binary_sensor.graph_api_safe_mode
+                state: 'off'
+          - type: entities
+            entities:
+              - entity: sensor.graph_api_device_extension_attributes
+                name: ' '
+                type: attribute
+                attribute: extension_attributes
+            title: Device Extension Attributes
+            visibility:
+              - condition: state
+                entity: binary_sensor.graph_api_safe_mode
+                state: 'off'
+      - type: grid
+        cards:
+          - type: heading
+            heading: Graph API Users
+            heading_style: title
+            icon: mdi:account
+          - type: tile
+            entity: select.graph_api_user_selector
+            name: Selected User
+            show_entity_picture: false
+            hide_state: false
+            vertical: false
+            features:
+              - type: select-options
+            features_position: bottom
+          - type: heading
+            icon: mdi:shield-check
+            heading: Safe Mode Enabled (No Editable Options)
+            visibility:
+              - condition: state
+                entity: binary_sensor.graph_api_safe_mode
+                state: 'on'
+            heading_style: title
+          - type: entities
+            title: User Property Editor
+            entities:
+              - entity: text.graph_api_user_employee_id_editor
+              - entity: text.graph_api_user_job_title_editor
+              - entity: text.graph_api_user_department_editor
+            grid_options:
+              columns: 9
+              rows: auto
+            show_header_toggle: false
+            state_color: false
+            visibility:
+              - condition: and
+                conditions:
+                  - condition: state
+                    entity: binary_sensor.graph_api_privacy_mode
+                    state: 'off'
+                  - condition: state
+                    entity: binary_sensor.graph_api_safe_mode
+                    state: 'off'
+          - show_name: true
+            show_icon: true
+            type: button
+            entity: ''
+            tap_action:
+              action: perform-action
+              perform_action: automation.trigger
+              target:
+                entity_id:
+                  - automation.write_user
+              data:
+                skip_condition: true
+            name: Update
+            icon: mdi:update
+            color: accent
+            show_state: false
+            grid_options:
+              columns: 3
+              rows: 2
+            visibility:
+              - condition: and
+                conditions:
+                  - condition: state
+                    entity: binary_sensor.graph_api_privacy_mode
+                    state: 'off'
+                  - condition: state
+                    entity: binary_sensor.graph_api_safe_mode
+                    state: 'off'
+          - type: heading
+            icon: mdi:shield-check
+            heading: Privacy Mode Enabled
+            visibility:
+              - condition: state
+                entity: binary_sensor.graph_api_privacy_mode
+                state: 'on'
+            heading_style: title
+          - type: entities
+            entities:
+              - entity: sensor.graph_api_employee_id
+              - entity: sensor.graph_api_job_title
+              - entity: sensor.graph_api_department
+            title: Writable Fields
+    show_icon_and_title: true
+    cards: []

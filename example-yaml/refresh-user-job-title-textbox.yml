@@ -1,0 +1,26 @@
+alias: Refresh User Job Title Text Box
+description: "EXAMPLE automation for refreshing the user job title text box. This automation is triggered when the user job title changes in `Graph API Users` on the `Write Actions` tab of the example dashboard."
+triggers:
+  - trigger: state
+    entity_id:
+      - sensor.graph_api_job_title
+conditions: []
+actions:
+  - if:
+      - condition: template
+        value_template: "{{ states('sensor.graph_api_job_title') != \"Not available\" }}"
+    then:
+      - action: text.set_value
+        target:
+          entity_id:
+            - text.graph_api_user_job_title_editor
+        data:
+          value: "{{ states('sensor.graph_api_job_title') }}"
+    else:
+      - action: text.set_value
+        target:
+          entity_id:
+            - text.graph_api_user_job_title_editor
+        data:
+          value: ""
+mode: single

@@ -1,0 +1,34 @@
+alias: Refresh EA Input Text Box
+description: "EXAMPLE automation for refreshing the extension attribute input text box. This automation is triggered when the selected extension attribute changes in `Graph API Devices` on the `Write Actions` tab of the example dashboard."
+triggers:
+  - trigger: state
+    entity_id:
+      - select.graph_api_extension_attribute_selector
+conditions: []
+actions:
+  - variables:
+      extattr: >-
+        {{ 'extensionAttribute' ~
+        state_attr('select.graph_api_extension_attribute_selector','attribute_number')
+        }}
+  - if:
+      - condition: template
+        value_template: >-
+          {{ state_attr('sensor.graph_api_device_extension_attributes',extattr)
+          is not none }}
+    then:
+      - action: text.set_value
+        target:
+          entity_id: text.graph_api_extension_attribute_editor
+        data:
+          value: >-
+            {{
+            state_attr('sensor.graph_api_device_extension_attributes',extattr)
+            }}
+    else:
+      - action: text.set_value
+        target:
+          entity_id: text.graph_api_extension_attribute_editor
+        data:
+          value: ""
+mode: single
