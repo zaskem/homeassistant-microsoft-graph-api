@@ -14,7 +14,7 @@ actions:
     metadata: {}
     data:
       entity_id:
-        - sensor.graph_api_employee_id
-        - sensor.graph_api_job_title
-        - sensor.graph_api_department
+        - sensor.graph_api_user_employee_id
+        - sensor.graph_api_user_job_title
+        - sensor.graph_api_user_department
 mode: single

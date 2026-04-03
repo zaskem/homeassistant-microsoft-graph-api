@@ -120,9 +120,9 @@ views:
             entities:
               - entity: sensor.graph_api_user_principal_name
               - entity: sensor.graph_api_user_mail
-              - entity: sensor.graph_api_employee_id
-              - entity: sensor.graph_api_job_title
-              - entity: sensor.graph_api_department
+              - entity: sensor.graph_api_user_employee_id
+              - entity: sensor.graph_api_user_job_title
+              - entity: sensor.graph_api_user_department
             title: Sensitive Fields
     max_columns: 4
     title: Read-Only Actions
@@ -302,9 +302,9 @@ views:
             heading_style: title
           - type: entities
             entities:
-              - entity: sensor.graph_api_employee_id
-              - entity: sensor.graph_api_job_title
-              - entity: sensor.graph_api_department
+              - entity: sensor.graph_api_user_employee_id
+              - entity: sensor.graph_api_user_job_title
+              - entity: sensor.graph_api_user_department
             title: Writable Fields
     show_icon_and_title: true
     cards: []
