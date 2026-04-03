@@ -156,7 +156,7 @@ To configure and set up Certificate authentication:
 4. In the Azure application registration, go to **Certificates & secrets** > **Upload certificate** and provide the `ha_graphapi.crt` file and give it a reasonable description
 5. In Home Assistant, navigate to **Settings** > **Devices & Services** > **Microsoft Graph API Sandbox** > **Configure** and set the following values:
    - **Use Certificate-Based Authentication (optional)**: Check this box
-   - **Azure Application Certificate Path (optional)**: Enter the path to the `pem` file from step 2 above (e.g. `config/ssl/ha_grapapi.pem`)
+   - **Azure Application Certificate Path (optional)**: Enter the path to the `pem` file from step 2 above (e.g. `/config/ssl/ha_grapapi.pem`)
 6. Click **Submit**
 7. The integration should automatically reload, but if not use the three dots button > **Reload** and check for errors.
 
